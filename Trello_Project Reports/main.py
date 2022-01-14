@@ -3,24 +3,32 @@ from datetime import date
 from decouple import config # pip install python-decouple
 from pandas import DataFrame, read_excel, ExcelWriter
 import fnmatch
+import os
+import sys
+import json
+import pprint
+import time
+
+"""CONFIG IMPORT"""
+try:
+    with open(os.path.join(sys.path[0],"config_file.json"), "r") as f:
+        json_config = json.load(f)
+except Exception as e:
+    print('Unable to load config file, See error below: \n')
+    pprint.pprint(e)
+    exit()
 
 """CONFIG"""
 API_TOKEN = config('TOKEN')
 API_KEY = config('KEY')
 API_AUTH = f'key={API_KEY}&token={API_TOKEN}'
-BOARD_NAME = config('BOARD_NAME')
-# FILEPATH = "X:/Division - Software Development/QA Team/Job's Files/QA Reports/"
-FILEPATH = config('FILEPATH')
-AGG_FILE_NAME = config('AGG_FILE_NAME')
-SINGLE_FILE_FOLDER = config('SINGLE_FILE_FOLDER/')
+BOARD_NAME = json_config['BOARD_NAME']
+FILEPATH = json_config['FILEPATH']
+AGG_FILE_NAME = json_config['AGG_FILE_NAME']
+SINGLE_FILE_FOLDER = json_config['SINGLE_FILE_FOLDER']
 TODAY = date.today() 
 
-TEAM_MEMBERS = [
-    'Job',
-    'Sean',
-    'Matthew',
-    'Anjana'
-]
+TEAM_MEMBERS = json_config['TEAM_MEMBERS']
 
 MONTHS =  [
         'January',
@@ -36,7 +44,7 @@ MONTHS =  [
         'November',
         'December']
 
-single_file_columns = [
+SINFLE_FILE_COLUMNS = [
                 'Sprint Name',
                 'Card Total',
                 'Test Case Cards',
@@ -61,7 +69,7 @@ single_file_columns = [
                 'Transient Cards'
             ]
 
-team_member_columns = [
+TEAM_MEMBER_COLUMNS = [
                         'Sprint',
                         'Name',
                         'Total Cards Tested',
@@ -72,7 +80,7 @@ team_member_columns = [
                         'Blocked Cards'
                     ]
 
-agg_columns = [
+AGGREGATE_FILE_COLUMNS = [
                 'Date',
                 'Sprint Name',
                 'Card Total',
@@ -98,7 +106,7 @@ agg_columns = [
                 'Transient Cards'
             ]
 
-card_report_columns = [
+CARD_REPORT_COLUMNS = [
                         'Sprint',
                         'Card Name',
                         'Card Status',
@@ -133,23 +141,23 @@ class card_object:
         self.passedRetestCases = 0
         self.failedRetestCases = 0
         self.numberOfComments = card_info['badges']['comments']
-        self.members = self.getMembers()
-        self.testers = self.getTesters()
+        self.members = self.get_members()
+        self.testers = self.get_testers()
         self.testCases = []
         self.retestedCases = []
-        self.isInOriginList = self.getOriginList()
-        self.status = self.getStatus()
-        self.getTestCases()
-        self.NumberOfTestCases = self.getNumOfTestCases()
+        self.isInOriginList = self.get_origin_list()
+        self.status = self.get_status()
+        self.get_test_cases()
+        self.NumberOfTestCases = self.get_num_of_test_cases()
 
-    def getNumOfTestCases(self):
+    def get_num_of_test_cases(self):
         return (self.passedTestCases + self.failedTestCases) + (self.passedRetestCases + self.failedRetestCases)
 
-    def getMembers(self):
+    def get_members(self):
         request = trello_get(f'cards/{self.id}/members?')
         return request.json()
     
-    def getTesters(self):
+    def get_testers(self):
         testers = ''
         for i in self.labels:
             if i['name'] in TEAM_MEMBERS:
@@ -157,7 +165,7 @@ class card_object:
         testers = testers[:len(testers) - 2]
         return testers
     
-    def getStatus(self):
+    def get_status(self):
         label_names = []
         for i in self.labels:
             label_names.append(i['name'])
@@ -170,13 +178,13 @@ class card_object:
         return status
 
 
-    def getOriginList(self):
+    def get_origin_list(self):
         for i in self.labels:
             if f'Origin: {self.list_name}' in i['name']: 
                 return True
         return False
             
-    def getTestCases(self):
+    def get_test_cases(self):
         test_cases = []
         retested_cases = []
         request = trello_get(f'cards/{self.id}/actions?')
@@ -190,9 +198,9 @@ class card_object:
             if i['type'] == 'commentCard' and ('passorfail:' in stripped_text):
                 if (any(entry in stripped_text for entry in ['type:positive', 'type:negative'])):
                     test_cases.append(i)
-                    if 'passorfail:pass' in stripped_text:
+                    if any(entry in stripped_text for entry in ['passorfail:pass', 'passorfail:passed']):
                         self.passedTestCases += 1
-                    elif 'passorfail:fail' in stripped_text:
+                    elif any(entry in stripped_text for entry in ['passorfail:fail', 'passorfail:failed']):
                         self.failedTestCases += 1
                 elif(any(entry in stripped_text for entry in ['type:r-positive', 'type:r-negative'])):
                     retested_cases.append(i)
@@ -233,38 +241,38 @@ class report_object:
         self.CardsByYear = {} #
         self.CardsByMonth = {} #
         self.CardsByMonthAndYear = {} #
-        self.TeamMemberStats = self.getTeamMembers() 
-        self.NumberOfRetestedCards = self.getNumOfRetested() #
-        self.NumberOfFrontEndCardsPendingTest = self.getFrontEndPending() #
-        self.NumberOfBackEndCardsPendingTest = self.getBackEndPending() #
-        self.NumberOfPassedCards = self.getNumPassed() #
-        self.NumberOfFailedCards = self.getNumFailed() #
-        self.NumberOfTestedCards = self.getNumTested()  #
-        self.NumberOfCardsAwaitingTesting = self.getNumAwaitingTesting()  #
+        self.TeamMemberStats = self.get_team_members() 
+        self.NumberOfRetestedCards = self.get_num_of_retested() #
+        self.NumberOfFrontEndCardsPendingTest = self.get_front_end_pending() #
+        self.NumberOfBackEndCardsPendingTest = self.get_back_end_pending() #
+        self.NumberOfPassedCards = self.get_num_passed() #
+        self.NumberOfFailedCards = self.get_num_failed() #
+        self.NumberOfTestedCards = self.get_num_tested()  #
+        self.NumberOfCardsAwaitingTesting = self.get_num_awaiting_testing()  #
         self.card_objects = card_objects
 
-    def getNumOfRetested(self):
+    def get_num_of_retested(self):
         return self.NumberOfRetestedCardsPassed + self.NumberOfRetestedCardsFailed
 
-    def getFrontEndPending(self):
+    def get_front_end_pending(self):
         return self.NumberOfFrontEndCards - (self.NumberOfFailedFrontEndCards + self.NumberOfPassedFrontEndCards)
 
-    def getBackEndPending(self):
+    def get_back_end_pending(self):
         return self.NumberOfBackEndCards - (self.NumberOfFailedBackEndCards + self.NumberOfPassedBackEndCards)
 
-    def getNumPassed(self):
+    def get_num_passed(self):
         return self.NumberOfPassedBackEndCards + self.NumberOfPassedFrontEndCards
 
-    def getNumFailed(self):
+    def get_num_failed(self):
         return self.NumberOfFailedBackEndCards + self.NumberOfFailedFrontEndCards
         
-    def getNumTested(self):
+    def get_num_tested(self):
         return (self.NumberOfPassedBackEndCards + self.NumberOfPassedFrontEndCards) + (self.NumberOfFailedBackEndCards + self.NumberOfFailedFrontEndCards)
 
-    def getNumAwaitingTesting(self):
+    def get_num_awaiting_testing(self):
         return self.NumberOfCards - ((self.NumberOfPassedBackEndCards + self.NumberOfPassedFrontEndCards) + (self.NumberOfFailedBackEndCards + self.NumberOfFailedFrontEndCards))
 
-    def getTeamMembers(self):
+    def get_team_members(self):
         members = []
         for member in TEAM_MEMBERS:
             members.append(team_member(member))
@@ -429,7 +437,7 @@ def get_agg_data():
         data = read_excel((FILEPATH + AGG_FILE_NAME), sheet_name='Main')
     except Exception as e:
         print('No historical file found, creating new file.')
-        data = DataFrame([], columns=agg_columns)
+        data = DataFrame([], columns=AGGREGATE_FILE_COLUMNS)
     return data
 
 def build_agg_report(reports):
@@ -442,9 +450,9 @@ def build_agg_report(reports):
                 i.NumberOfCards,
                 i.NumberOfTestCases,
                 i.NumberOfBugCards,
-                i.getNumTested(),
-                i.getNumPassed(),
-                i.getNumFailed(),
+                i.get_num_tested(),
+                i.get_num_passed(),
+                i.get_num_failed(),
                 i.NumberOfBlockedCards,
                 i.NumberOfFrontEndCards,
                 i.NumberOfPassedFrontEndCards,
@@ -452,15 +460,15 @@ def build_agg_report(reports):
                 i.NumberOfBackEndCards,
                 i.NumberOfPassedBackEndCards,
                 i.NumberOfFailedBackEndCards,
-                i.getNumOfRetested(),
+                i.get_num_of_retested(),
                 i.NumberOfRetestedCardsPassed,
                 i.NumberOfRetestedCardsFailed,
-                i.getNumAwaitingTesting(),
-                i.getFrontEndPending(),
-                i.getBackEndPending(),
+                i.get_num_awaiting_testing(),
+                i.get_front_end_pending(),
+                i.get_back_end_pending(),
                 i.NumberOfCardsPendingRetest,
                 i.NumberOfCardsNotInOriginSprint
-            ]], columns=agg_columns)
+            ]], columns=AGGREGATE_FILE_COLUMNS)
 
             agreggate_dataframe = agreggate_dataframe.append(temp_agreggate_dataframe, ignore_index=True)
         agreggate_dataframe.to_excel(writer, sheet_name='Main', index=False)
@@ -470,16 +478,16 @@ def build_agg_report(reports):
 def build_single_report(reports):
     with ExcelWriter(f'{FILEPATH}{SINGLE_FILE_FOLDER}{TODAY}- Single Run Report.xlsx') as writer:
         """Main Data"""
-        single_run_dataframe = DataFrame([], columns=single_file_columns)
+        single_run_dataframe = DataFrame([], columns=SINFLE_FILE_COLUMNS)
         for i in reports:   
             temp_single_run_dataframe = DataFrame([[
                 i.list_name,
                 i.NumberOfCards,
                 i.NumberOfTestCases,
                 i.NumberOfBugCards,
-                i.getNumTested(),
-                i.getNumPassed(),
-                i.getNumFailed(),
+                i.get_num_tested(),
+                i.get_num_passed(),
+                i.get_num_failed(),
                 i.NumberOfBlockedCards,
                 i.NumberOfFrontEndCards,
                 i.NumberOfPassedFrontEndCards,
@@ -487,21 +495,21 @@ def build_single_report(reports):
                 i.NumberOfBackEndCards,
                 i.NumberOfPassedBackEndCards,
                 i.NumberOfFailedBackEndCards,
-                i.getNumOfRetested(),
+                i.get_num_of_retested(),
                 i.NumberOfRetestedCardsPassed,
                 i.NumberOfRetestedCardsFailed,
-                i.getNumAwaitingTesting(),
-                i.getFrontEndPending(),
-                i.getBackEndPending(),
+                i.get_num_awaiting_testing(),
+                i.get_front_end_pending(),
+                i.get_back_end_pending(),
                 i.NumberOfCardsPendingRetest,
                 i.NumberOfCardsNotInOriginSprint
-            ]], columns=single_file_columns)
+            ]], columns=SINFLE_FILE_COLUMNS)
 
             single_run_dataframe = single_run_dataframe.append(temp_single_run_dataframe, ignore_index=True)
         single_run_dataframe.to_excel(writer, sheet_name='Main', index=False)
 
         """Team Member Data"""
-        team_member_dataframe = DataFrame([], columns=team_member_columns)
+        team_member_dataframe = DataFrame([], columns=TEAM_MEMBER_COLUMNS)
         for e in reports:
             for i in e.TeamMemberStats:  
                 temp_team_member_dataframe = DataFrame([[
@@ -513,12 +521,12 @@ def build_single_report(reports):
                     i.NumberOfCardsRetested,
                     i.NumberOfCardsPending,
                     i.NumberOfBlockedCards
-                ]], columns=team_member_columns)
+                ]], columns=TEAM_MEMBER_COLUMNS)
                 team_member_dataframe = team_member_dataframe.append(temp_team_member_dataframe, ignore_index=True)
         team_member_dataframe.to_excel(writer, sheet_name='Team Members', index=False)
     
         """Card Data"""
-        card_dataframe = DataFrame([], columns=card_report_columns)
+        card_dataframe = DataFrame([], columns=CARD_REPORT_COLUMNS)
         for e in reports:
             for i in e.card_objects:  
                 temp_card_dataframe = DataFrame([[
@@ -526,14 +534,14 @@ def build_single_report(reports):
                     i.name,
                     i.status,
                     i.isInOriginList,
-                    i.getNumOfTestCases(),
+                    i.get_num_of_test_cases(),
                     i.passedTestCases,
                     i.failedTestCases,
                     i.passedRetestCases,
                     i.failedRetestCases,
                     i.testers,
                     i.url
-                ]], columns=card_report_columns)
+                ]], columns=CARD_REPORT_COLUMNS)
                 card_dataframe = card_dataframe.append(temp_card_dataframe, ignore_index=True)
         card_dataframe.to_excel(writer, sheet_name='Card Breakdown', index=False)
 
@@ -564,18 +572,23 @@ def build_reports(report_selection, reports):
     
 """MAIN"""
 def main():
-    board_ids = get_boards()
-    board_information = filter_boards(board_ids)
-    lists = get_lists(board_information)
-    report_selection = get_report_selection()
-    list_selection = get_list_selection(lists)
-    list_information = filter_lists(lists, list_selection)
-    cards_by_list = get_cards_by_list(list_information)
-    build_cards(cards_by_list)
-    reports = anaylze_cards(cards_by_list)
-    build_reports(report_selection, reports)
-    print('\n Reports Successfully Run. \n')
-    exit()
+    try:
+        board_ids = get_boards()
+        board_information = filter_boards(board_ids)
+        lists = get_lists(board_information)
+        report_selection = get_report_selection()
+        list_selection = get_list_selection(lists)
+        list_information = filter_lists(lists, list_selection)
+        cards_by_list = get_cards_by_list(list_information)
+        build_cards(cards_by_list)
+        reports = anaylze_cards(cards_by_list)
+        build_reports(report_selection, reports)
+        print('\n Reports Successfully Run. \n')
+        exit()
+    except Exception as e:
+        print('The program has run into a problem, please see error below: \n')
+        pprint.pprint(e)
+        time.sleep(600)
     
 
 if __name__ == '__main__':

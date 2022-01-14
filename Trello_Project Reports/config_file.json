@@ -1,0 +1,13 @@
+{
+    "BOARD_NAME":"QA Proof Of Concept",
+    "AGG_FILE_NAME":"QA_Aggregate.xlsx",
+    "SINGLE_FILE_FOLDER":"Single Run Reports/",
+    "TESTFILEPATH":"C:/Users/job.thompson/Documents/Test/",
+    "FILEPATH":"X:/Division - Software Development/QA Team/Job's Files/QA Reports/",
+    "TEAM_MEMBERS": [
+                        "Job",
+                        "Sean",
+                        "Matthew",
+                        "Anjana"
+                    ]
+}
