@@ -1,13 +1,21 @@
 from Program import program
 import pprint
-import time
+import traceback
+from LOG_local import write_to_log
+
 
 def main():
     try: 
+        write_to_log('info', 'Program Started')
         program()
-    except Exception as e:
+        write_to_log('info', 'Program Ended')
+        input('Press Enter to exit.')
+        exit()
+    except Exception:
+        write_to_log('error', 'The program ran into a problem.')
+        write_to_log('error', traceback.format_exc())
         print('The program has run into a problem, please see error below: \n')
-        pprint.pprint(e)
+        pprint.pprint(traceback.format_exc())
         input('Press Enter to exit.')
         exit()
 

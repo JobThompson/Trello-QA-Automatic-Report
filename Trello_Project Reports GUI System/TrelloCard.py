@@ -8,11 +8,12 @@ class TrelloCard:
         self.id = card_info['id']
         self.url = card_info['url']
         self.labels = card_info['labels']
+        self.dev_team_assigned = self.get_dev_team()
         self.passedTestCases = 0
         self.failedTestCases = 0
         self.passedRetestCases = 0
         self.failedRetestCases = 0
-        self.numberOfComments = card_info['badges']['comments']
+        # self.numberOfComments = card_info['badges']['comments']
         # self.members = self.get_members()
         self.testers = self.get_testers()
         self.testCases = []
@@ -49,6 +50,17 @@ class TrelloCard:
             status = 'Pending'
         return status
 
+    def get_dev_team(self):
+        team = 'Unassigned'
+        for i in self.labels:
+            if 'Team: Kevin Moore' in i['name']:
+                team = 'Kevin Moore'
+                break
+            elif 'Team: Zack Baker' in i['name']:
+                team = 'Zack Baker'
+                break                
+        return team
+            
 
     def get_origin_list(self):
         for i in self.labels:

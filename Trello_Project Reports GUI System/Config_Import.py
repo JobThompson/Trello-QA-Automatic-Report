@@ -11,8 +11,14 @@ try:
 except Exception as e:
     print('Unable to load config, See error below: \n')
     pprint.pprint(e)
+    input('Press Enter to exit.')
     exit()
 
+def check_for_single_run_folder():
+    if(not os.path.exists(json_config['FILEPATH'] + json_config['SINGLE_FILE_FOLDER'])):
+        os.mkdir(json_config['FILEPATH'] + json_config['SINGLE_FILE_FOLDER'])
+
+check_for_single_run_folder()
 
 MONTHS =  [
         'January',
@@ -95,6 +101,7 @@ CARD_REPORT_COLUMNS = [
                         'Sprint',
                         'Card Name',
                         'Card Status',
+                        'Assigned Dev Team',
                         'From This Sprint',
                         'Total Test Cases',
                         'Passed Test Cases',

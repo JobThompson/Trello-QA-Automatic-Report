@@ -1,7 +1,7 @@
 {
     "BOARD_NAME":"QA Documentation",
     "AGG_FILE_NAME":"QA_Aggregate.xlsx",
-    "SINGLE_FILE_FOLDER":"Single Run Reports/",
+    "SINGLE_FILE_FOLDER":"Single Run Reports",
     "FILEPATH":"X:/Division - Software Development/QA Team/Job's Files/QA Reports/",
     "TEAM_MEMBERS": [
                         "Job Thompson",
@@ -9,6 +9,7 @@
                         "Matthew Williams",
                         "Anjana Jose",
                         "Sarah Smitherman",
-                        "Lynn Hodges"
+                        "Lynn Hodges",
+                        "Kofi Amichia"
                     ]
 }
