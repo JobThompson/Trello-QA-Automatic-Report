@@ -127,3 +127,4 @@ dmypy.json
 
 # Pyre type checker
 .pyre/
+CX_Freeze Command.txt
