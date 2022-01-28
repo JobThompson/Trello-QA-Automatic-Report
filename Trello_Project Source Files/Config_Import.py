@@ -5,7 +5,7 @@ import pprint
 from datetime import date
 
 try:
-    with open(os.path.join(sys.path[0],"config_file.json"), "r") as f:
+    with open("./config_file.json", "r") as f:
         json_config = json.load(f)
 
 except Exception as e:

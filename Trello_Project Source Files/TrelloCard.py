@@ -46,6 +46,8 @@ class TrelloCard:
             status = 'Failed'
         elif 'Passed' in label_names and 'Failed' not in label_names:
             status = 'Passed'
+        elif 'In Development' in label_names:
+            status = 'In Development'
         else:
             status = 'Pending'
         return status
