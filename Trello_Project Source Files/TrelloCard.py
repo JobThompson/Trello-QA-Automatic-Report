@@ -84,9 +84,9 @@ class TrelloCard:
             if i['type'] == 'commentCard' and ('passorfail:' in stripped_text):
                 if (any(entry in stripped_text for entry in ['type:positive', 'type:negative'])):
                     test_cases.append(i)
-                    if any(entry in stripped_text for entry in ['passorfail:pass', 'passorfail:passed']):
+                    if any(entry in stripped_text for entry in ['passorfail:pass', 'passorfail:passed', 'passorfail:**passed**', 'passorfail:**pass**', 'passorfail:*passed*', 'passorfail:*pass*', 'passorfail:***passed***', 'passorfail:***pass***']):
                         self.passedTestCases += 1
-                    elif any(entry in stripped_text for entry in ['passorfail:fail', 'passorfail:failed']):
+                    elif any(entry in stripped_text for entry in ['passorfail:fail', 'passorfail:failed', 'passorfail:**failed**', 'passorfail:*fail*', 'passorfail:***fail***', 'passorfail:***fail***']):
                         self.failedTestCases += 1
                 elif(any(entry in stripped_text for entry in ['type:r-positive', 'type:r-negative'])):
                     retested_cases.append(i)
