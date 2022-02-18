@@ -29,7 +29,7 @@ class TrelloReport:
         self.NumberOfFailedCards = self.get_num_failed() #
         self.NumberOfTestedCards = self.get_num_tested()  #
         self.NumberOfCardsAwaitingTesting = self.get_num_awaiting_testing()  #
-        self.card_objects = card_objects
+        self.card_objects = card_objects #
 
     def get_num_of_retested(self):
         return self.NumberOfRetestedCardsPassed + self.NumberOfRetestedCardsFailed

@@ -13,8 +13,6 @@ class TrelloCard:
         self.failedTestCases = 0
         self.passedRetestCases = 0
         self.failedRetestCases = 0
-        # self.numberOfComments = card_info['badges']['comments']
-        # self.members = self.get_members()
         self.testers = self.get_testers()
         self.testCases = []
         self.retestedCases = []
@@ -25,10 +23,6 @@ class TrelloCard:
 
     def get_num_of_test_cases(self):
         return (self.passedTestCases + self.failedTestCases) + (self.passedRetestCases + self.failedRetestCases)
-
-    # def get_members(self):
-    #     request = trello_get(f'cards/{self.id}/members?')
-    #     return request.json()
     
     def get_testers(self):
         testers = ''

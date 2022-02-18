@@ -29,6 +29,7 @@ def filter_boards(board_ids): # Only returns the board specified in the .env fil
     for i in board_ids:
         if i['Name'] == config_object.boardName:
             return i
+    write_to_log('error', 'Unable to find board specified in the .env file. Please doublecheck the board name.')
 
 def get_all_cards(board_information): # Gets all the cards for a given board # CURRENTLY UNUSED
     try: 
@@ -118,37 +119,6 @@ def analyze_cards(list_selection):
 
 def get_passed_and_failed_stats(list, report, labels): # Gets the stats from the cards based on the labels that the cards have attached.
     
-    # top_level_stats = {
-    #             'Front End': report.NumberOfFrontEndCards, 
-    #             'Back End': report.NumberOfBackEndCards,
-    #             'Test Case': report.NumberOfTestCases,
-    #             'Bug': report.NumberOfBugCards,
-    #         }
-    
-    # passed_stats = {
-    #                 'Front End': report.NumberOfPassedFrontEndCards,
-    #                 'Back End': report.NumberOfPassedBackEndCards,
-    #                 'Retested': report.NumberOfRetestedCardsPassed
-    # }
-
-    # failed_stats = {
-    #                 'Front End': report.NumberOfFailedFrontEndCards,
-    #                 'Back End': report.NumberOfFailedBackEndCards,
-    #                 'Retested': report.NumberOfRetestedCardsFailed
-    # }
-
-    # for label in labels:
-    #     if label in top_level_stats.keys():
-    #         top_level_stats[label] += 1
-        
-    #     if 'Failed' in labels and 'Passed' not in labels:
-    #         if label in failed_stats.keys():
-    #             failed_stats[label] += 1
-        
-    #     elif 'Passed' in labels and 'Failed' not in labels:
-    #         if label in passed_stats.keys():
-    #             passed_stats[label] += 1
-
     if 'Front End' in labels:
         report.NumberOfFrontEndCards += 1
     elif 'Back End' in labels:
