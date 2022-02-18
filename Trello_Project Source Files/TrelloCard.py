@@ -48,6 +48,8 @@ class TrelloCard:
             status = 'Passed'
         elif 'In Development' in label_names:
             status = 'In Development'
+        elif 'Reopened' in label_names:
+            status = 'Reopened'
         else:
             status = 'Pending'
         return status
