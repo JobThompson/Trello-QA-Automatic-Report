@@ -12,7 +12,7 @@ except Exception as e:
     print('Unable to load config, See error below: \n')
     pprint.pprint(e)
     input('Press Enter to exit.')
-    exit()
+    sys.exit()
 
 def check_for_single_run_folder():
     if(not os.path.exists(json_config['FILEPATH'] + json_config['SINGLE_FILE_FOLDER'])):
