@@ -1,5 +1,5 @@
 import requests
-from decouple import config as cf # pip install python-decouple
+from decouple import config as cf
 
 API_TOKEN = cf('TOKEN')
 API_KEY = cf('KEY')

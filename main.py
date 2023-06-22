@@ -1,8 +1,7 @@
-from Program import program
+from ProgramFiles.Program import program
 import pprint
 import traceback
-from LOG_local import write_to_log
-
+from ProgramFiles.LOG_local import write_to_log
 
 def main():
     try: 

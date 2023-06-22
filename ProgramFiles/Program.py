@@ -1,9 +1,9 @@
-from pprint import pprint
 import traceback
 from Config_Import import ProjectConfig
-config_object = ProjectConfig()
 from pandas import DataFrame, read_excel, ExcelWriter
 import fnmatch
+
+config_object = ProjectConfig()
 
 """Local Imports"""
 from API import trello_get

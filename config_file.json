@@ -2,7 +2,7 @@
     "BOARD_NAME":"QA Documentation",
     "AGG_FILE_NAME":"QA_Aggregate.xlsx",
     "SINGLE_FILE_FOLDER":"Single Run Reports",
-    "FILEPATH":"X:/Division - Software Development/QA Team/Job's Files/QA Reports/",
+    "FILEPATH":"./",
     "TEAM_MEMBERS": [
                         "Job Thompson",
                         "Sean Thompson",
